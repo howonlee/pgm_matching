@@ -36,4 +36,5 @@ if __name__ == "__main__":
         total_corpus = corpus_file.read().split()
         washed, word_map = wash_words(total_corpus)
         net = word_net(washed)
-        print net.number_of_edges()
+        src_net = select_net(net)
+        tgt_net = select_net(net)
