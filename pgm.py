@@ -31,6 +31,24 @@ def select_net(net, p=0.9):
     new_net.add_edges_from(new_net_edges)
     return new_net
 
+def pgm(net, seeds):
+    pass
+    """
+    a = b = seeds
+    z = []
+    t = 0
+    while a - z:
+        t += 1
+        #randomly select a pair p from the previous a - z and add one mark to all neighbor pair of p
+        b_delta = [] #set of all neighboring pairs of p whose mark counter has reached threshhold r at time t
+        a_delta = filter(has_no_conflicting_pair, b_delta)#is a subset of b_delta; order the pairs
+        z = z union p
+        b = b union b_delta
+        a = a union a_delta
+    return t, a
+    """
+
+
 if __name__ == "__main__":
     with open("corpus.txt", "r") as corpus_file:
         total_corpus = corpus_file.read().split()
