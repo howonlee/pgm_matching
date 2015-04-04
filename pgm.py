@@ -31,28 +31,23 @@ def select_net(net, p=0.9):
     new_net.add_edges_from(new_net_edges)
     return new_net
 
-def pgm(net, seeds):
+def get_seeds(src_net, tgt_net, num_seeds):
+    seeds = []
+    #get the seeds
+    #nothing fancy
+    return seeds
+
+def pgm(net1, net2, seeds, r=10): #seeds is a list of tups
     pass
-    """
-    a = b = seeds
-    z = []
-    t = 0
-    while a - z:
-        t += 1
-        #randomly select a pair p from the previous a - z and add one mark to all neighbor pair of p
-        b_delta = [] #set of all neighboring pairs of p whose mark counter has reached threshhold r at time t
-        a_delta = filter(has_no_conflicting_pair, b_delta)#is a subset of b_delta; order the pairs
-        z = z union p
-        b = b union b_delta
-        a = a union a_delta
-    return t, a
-    """
 
 
 if __name__ == "__main__":
     with open("corpus.txt", "r") as corpus_file:
         total_corpus = corpus_file.read().split()
         washed, word_map = wash_words(total_corpus)
-        net = word_net(washed)
+        #net = word_net(washed)
+        net = nx.gnp_random_graph(400, 0.5)
         src_net = select_net(net)
         tgt_net = select_net(net)
+        seeds = get_seeds(src_net, tgt_net, 10)
+        print pgm(src_net, tgt_net, seeds)
