@@ -1,5 +1,7 @@
 import networkx as nx
 import random
+import collections
+import itertools
 
 def wash_words(word_ls):
     word_map = {}
@@ -37,9 +39,27 @@ def get_seeds(src_net, tgt_net, num_seeds):
     #nothing fancy
     return seeds
 
-def pgm(net1, net2, seeds, r=10): #seeds is a list of tups
-    pass
+def not_conflicting(neighbor, checked, to_check):
+    for pair in itertools.chain(checked, to_check):
+        if the things are not done properly:
+            return False
+    return True
 
+def pgm(net1, net2, seeds, r=5): #seeds is a list of tups
+    marks = collections.Counter()
+    to_check = seeds.deepcopy()
+    checked = []
+    while to_check:
+        curr_pair = to_check.pop(random.randint(0,len(to_check)-1))
+        neighbors_1 = net1.neighbors(curr_pair[0])
+        neighbors_2 = net2.neighbors(curr_pair[1])
+        for neighbor in itertools.product(neighbors_1, neighbors_2):
+            marks[neighbor] += 1
+            if marks[neighbor] > r:
+                if not_conflicting(neighbor, checked, to_check):
+                    to_check.append(neighbor)
+        checked.append(curr_pair)
+    return checked
 
 if __name__ == "__main__":
     with open("corpus.txt", "r") as corpus_file:
