@@ -36,13 +36,13 @@ def select_net(net, p=0.9):
 def get_seeds(src_net, tgt_net, num_seeds):
     seeds = []
     #get the seeds
-    #nothing fancy
+    #nothing fancy, just match up the top num_seeds, I think
+    #is it robust to bad seed matchings? no idea
     return seeds
 
-def not_conflicting(neighbor, checked, to_check):
-    for pair in itertools.chain(checked, to_check):
-        if the things are not done properly:
-            return False
+def not_conflicting(curr_pair, checked, to_check, net1, net2):
+    for check_pair in itertools.chain(checked, to_check):
+        pass #I have no vision of it
     return True
 
 def pgm(net1, net2, seeds, r=5): #seeds is a list of tups
@@ -56,7 +56,7 @@ def pgm(net1, net2, seeds, r=5): #seeds is a list of tups
         for neighbor in itertools.product(neighbors_1, neighbors_2):
             marks[neighbor] += 1
             if marks[neighbor] > r:
-                if not_conflicting(neighbor, checked, to_check):
+                if not_conflicting(neighbor, checked, to_check, net1, net2):
                     to_check.append(neighbor)
         checked.append(curr_pair)
     return checked
