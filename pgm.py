@@ -42,7 +42,7 @@ def get_seeds(src_net, tgt_net, num_seeds):
     tgt_degs = sorted(nx.degree(tgt_net).items(), key=operator.itemgetter(1), reverse=True)
     ordered_maps = zip(map(operator.itemgetter(0), src_degs), map(operator.itemgetter(0), tgt_degs))
     #ordered_maps = zip(map(operator.itemgetter(0), src_degs), map(operator.itemgetter(0), src_degs))
-    print list(itertools.islice(zip(src_degs, tgt_degs), num_seeds))
+    #print list(itertools.islice(zip(src_degs, tgt_degs), num_seeds))
     return list(itertools.islice(ordered_maps, num_seeds))
 
 def pgm(net1, net2, seeds, r): #seeds is a list of tups
@@ -63,10 +63,16 @@ def pgm(net1, net2, seeds, r): #seeds is a list of tups
             if t2 % 250000 == 0:
                 #this is an awful hack
                 break
-            if marks[neighbor] > r:
-                unused.append(neighbor)
-                imp_1[neighbor[0]] = True
-                imp_2[neighbor[1]] = True
+            #take it out, I guess?
+            #if marks[neighbor] > r:
+            #    unused.append(neighbor)
+            #    imp_1[neighbor[0]] = True
+            #    imp_2[neighbor[1]] = True
+        #maximum of the marks here
+########################################
+########################################
+########################################
+########################################
         used.append(curr_pair)
     return used
 
@@ -75,6 +81,7 @@ def score_easy(pgm_res):
     print "correct / total: ", corrects, " / ", len(pgm_res)
 
 if __name__ == "__main__":
+    random.seed(123456) #different seed :)
     with open("corpus.txt", "r") as corpus_file:
         total_corpus = corpus_file.read().split()
         washed, word_map = wash_words(total_corpus)
@@ -83,8 +90,7 @@ if __name__ == "__main__":
         src_net = select_net(net)
         tgt_net = select_net(net)
         #500 is fine here...
-        x = 150
-        #for x in [25, 50, 100, 200, 400]:
-        print "x: ", x
-        seeds = get_seeds(src_net, tgt_net, x)
-        #score_easy(pgm(src_net, tgt_net, seeds, 4))
+        for x in [25, 50, 100, 200, 400]:
+            print "x: ", x
+            seeds = get_seeds(src_net, tgt_net, x)
+            score_easy(pgm(src_net, tgt_net, seeds, 7))
