@@ -37,10 +37,12 @@ def select_net(net, p=0.9):
     return new_net
 
 def get_seeds(src_net, tgt_net, num_seeds):
+    #we're going to need to skip some, friend
     src_degs = sorted(nx.degree(src_net).items(), key=operator.itemgetter(1), reverse=True)
     tgt_degs = sorted(nx.degree(tgt_net).items(), key=operator.itemgetter(1), reverse=True)
-    #ordered_maps = zip(map(operator.itemgetter(0), src_degs), map(operator.itemgetter(0), tgt_degs))
-    ordered_maps = zip(map(operator.itemgetter(0), src_degs), map(operator.itemgetter(0), src_degs))
+    ordered_maps = zip(map(operator.itemgetter(0), src_degs), map(operator.itemgetter(0), tgt_degs))
+    #ordered_maps = zip(map(operator.itemgetter(0), src_degs), map(operator.itemgetter(0), src_degs))
+    print list(itertools.islice(zip(src_degs, tgt_degs), num_seeds))
     return list(itertools.islice(ordered_maps, num_seeds))
 
 def pgm(net1, net2, seeds, r): #seeds is a list of tups
@@ -53,11 +55,12 @@ def pgm(net1, net2, seeds, r): #seeds is a list of tups
         t2 = 0
         curr_pair = unused.pop(random.randint(0,len(unused)-1))
         for neighbor in itertools.product(net1.neighbors(curr_pair[0]), net2.neighbors(curr_pair[1])):
+            #take the filter out of the loops
             if imp_1.has_key(neighbor[0]) or imp_2.has_key(neighbor[1]):
                 continue
             marks[neighbor] += 1
             t2 += 1
-            if t2 % 50000 == 0:
+            if t2 % 250000 == 0:
                 #this is an awful hack
                 break
             if marks[neighbor] > r:
@@ -80,7 +83,8 @@ if __name__ == "__main__":
         src_net = select_net(net)
         tgt_net = select_net(net)
         #500 is fine here...
-        for x in [25, 50, 100, 200, 400, 800, 1600]:
-            print "x: ", x
-            seeds = get_seeds(src_net, tgt_net, x)
-            score_easy(pgm(src_net, tgt_net, seeds, 4))
+        x = 150
+        #for x in [25, 50, 100, 200, 400]:
+        print "x: ", x
+        seeds = get_seeds(src_net, tgt_net, x)
+        #score_easy(pgm(src_net, tgt_net, seeds, 4))
