@@ -42,11 +42,13 @@ def get_seeds(src_net, tgt_net, num_seeds):
     tgt_degs = sorted(nx.degree(tgt_net).items(), key=operator.itemgetter(1), reverse=True)
     ordered_maps = zip(map(operator.itemgetter(0), src_degs), map(operator.itemgetter(0), tgt_degs))
     #ordered_maps = zip(map(operator.itemgetter(0), src_degs), map(operator.itemgetter(0), src_degs))
-    #print list(itertools.islice(zip(src_degs, tgt_degs), num_seeds))
+    for x in xrange(num_seeds):
+        print src_degs[x][1] - tgt_degs[x][1]
     return list(itertools.islice(ordered_maps, num_seeds))
 
 def pgm(net1, net2, seeds, r): #seeds is a list of tups
     marks = collections.defaultdict(int)
+    #heap?
     imp_1 = {} #impossible tails
     imp_2 = {} #impossible heads
     unused = seeds[:]
