@@ -1,10 +1,12 @@
 import networkx as nx
+import numpy as np
 import sys
 import random
 import collections
 import itertools
 import operator
 import cProfile
+import dtw
 
 def wash_words(word_ls):
     word_map = {}
@@ -36,15 +38,40 @@ def select_net(net, p=0.9):
     new_net.add_edges_from(new_net_edges)
     return new_net
 
+def print_seed_dist(src_degs, tgt_degs, num_seeds):
+    for x in xrange(num_seeds):
+        print src_degs[x][1] - tgt_degs[x][1]
+
+def path_to_seeds(path):
+    lset = set() #left and right paths, we think of them as
+    rset = set()
+    lpath, rpath = map(list, path)
+    seeds = []
+    for idx, x in enumerate(lpath):
+        y = rpath[idx]
+        if x in lset:
+            continue
+        if y in rset:
+            continue
+        seeds.append((x, y))
+        lset.add(x)
+        rset.add(y)
+    return seeds
+
+def l2_norm(x, y):
+    #because I am too lazy to actually figure out how to do it with np norm
+    return np.sqrt(x ** 2 + y ** 2)
+
 def get_seeds(src_net, tgt_net, num_seeds):
     #we're going to need to skip some, friend
     src_degs = sorted(nx.degree(src_net).items(), key=operator.itemgetter(1), reverse=True)
     tgt_degs = sorted(nx.degree(tgt_net).items(), key=operator.itemgetter(1), reverse=True)
-    ordered_maps = zip(map(operator.itemgetter(0), src_degs), map(operator.itemgetter(0), tgt_degs))
-    #ordered_maps = zip(map(operator.itemgetter(0), src_degs), map(operator.itemgetter(0), src_degs))
-    for x in xrange(num_seeds):
-        print src_degs[x][1] - tgt_degs[x][1]
-    return list(itertools.islice(ordered_maps, num_seeds))
+    src_dists = list(itertools.islice(map(operator.itemgetter(1), src_degs), num_seeds))
+    tgt_dists = list(itertools.islice(map(operator.itemgetter(1), tgt_degs), num_seeds))
+    dist, cost, path = dtw.dtw(src_dists, tgt_dists, dist=l2_norm)
+    seeds = path_to_seeds(path)
+    print "actual number of seeds: ", len(seeds)
+    return seeds
 
 def pgm(net1, net2, seeds, r): #seeds is a list of tups
     marks = collections.defaultdict(int)
@@ -66,15 +93,11 @@ def pgm(net1, net2, seeds, r): #seeds is a list of tups
                 #this is an awful hack
                 break
             #take it out, I guess?
-            #if marks[neighbor] > r:
-            #    unused.append(neighbor)
-            #    imp_1[neighbor[0]] = True
-            #    imp_2[neighbor[1]] = True
-        #maximum of the marks here
-########################################
-########################################
-########################################
-########################################
+            if marks[neighbor] > r:
+                unused.append(neighbor)
+                imp_1[neighbor[0]] = True
+                imp_2[neighbor[1]] = True
+        #maximum of the marks here, but later
         used.append(curr_pair)
     return used
 
@@ -92,7 +115,7 @@ if __name__ == "__main__":
         src_net = select_net(net)
         tgt_net = select_net(net)
         #500 is fine here...
-        for x in [25, 50, 100, 200, 400]:
+        for x in [400]:#, 50, 100, 200, 400]:
             print "x: ", x
             seeds = get_seeds(src_net, tgt_net, x)
             score_easy(pgm(src_net, tgt_net, seeds, 7))
